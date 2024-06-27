@@ -118,7 +118,7 @@ namespace TqkLibrary.Data.Json
             catch (Exception ex)
             {
                 OnSaveError?.Invoke(ex);
-                if(TrySaveOnError)
+                if (TrySaveOnError)
                 {
                     _timer.Stop();
                     _timer.Start();
@@ -164,8 +164,7 @@ namespace TqkLibrary.Data.Json
         /// </summary>
         public virtual void Load()
         {
-            if (File.Exists(_savePath)) 
-                _data = JsonConvert.DeserializeObject<T>(File.ReadAllText(_savePath), _jsonSerializerSettings);
+            Load(_savePath);
 
             if (_data is null)
             {
@@ -180,11 +179,16 @@ namespace TqkLibrary.Data.Json
         /// <param name="defaultData">default Data if file not exist</param>
         public virtual void Load(T defaultData)
         {
-            if (File.Exists(_savePath)) 
-                _data = JsonConvert.DeserializeObject<T>(File.ReadAllText(_savePath), _jsonSerializerSettings);
+            Load(_savePath);
 
             if (_data is null)
                 _data = defaultData ?? throw new ArgumentNullException(nameof(defaultData));
+        }
+
+        protected virtual void Load(string filePath)
+        {
+            if (File.Exists(_savePath))
+                _data = JsonConvert.DeserializeObject<T>(File.ReadAllText(_savePath), _jsonSerializerSettings);
         }
     }
 }
