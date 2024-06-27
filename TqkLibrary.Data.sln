@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TqkLibrary.Data.Json", "Tqk
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TqkLibrary.Data.Excel", "TqkLibrary.Data.Excel\TqkLibrary.Data.Excel.csproj", "{40636705-4D7A-41B4-93DB-1E9D002EFD49}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProject", "TestProject\TestProject.csproj", "{6BDD31D6-5250-420D-82B7-F74F7C5F56B3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{40636705-4D7A-41B4-93DB-1E9D002EFD49}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{40636705-4D7A-41B4-93DB-1E9D002EFD49}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{40636705-4D7A-41B4-93DB-1E9D002EFD49}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6BDD31D6-5250-420D-82B7-F74F7C5F56B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6BDD31D6-5250-420D-82B7-F74F7C5F56B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6BDD31D6-5250-420D-82B7-F74F7C5F56B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6BDD31D6-5250-420D-82B7-F74F7C5F56B3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
