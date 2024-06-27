@@ -15,6 +15,7 @@ namespace TqkLibrary.Data.Json
     public class SaveJsonData<T> : IDisposable, ISaveJsonDataControl
         where T : class
     {
+        public bool TrySaveOnError { get; set; } = true;
         /// <summary>
         /// 
         /// </summary>
@@ -110,6 +111,11 @@ namespace TqkLibrary.Data.Json
             catch (Exception ex)
             {
                 OnSaveError?.Invoke(ex);
+                if(TrySaveOnError)
+                {
+                    _timer.Stop();
+                    _timer.Start();
+                }
             }
         }
 
