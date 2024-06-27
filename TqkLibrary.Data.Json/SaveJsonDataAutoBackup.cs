@@ -12,9 +12,8 @@ namespace TqkLibrary.Data.Json
     public class SaveJsonDataAutoBackup<T> : SaveJsonData<T>
         where T : class
     {
-        DateTime _lastTimeBackup;
-
         public string BackupDir { get; }
+        public DateTime LastTimeBackup { get; private set; }
         public TimeSpan BackupInterval { get; set; } = TimeSpan.FromDays(1);//backup perday
 
         public SaveJsonDataAutoBackup(string SavePath, string backupDir, JsonSerializerSettings? jsonSerializerSettings = null)
@@ -50,7 +49,7 @@ namespace TqkLibrary.Data.Json
                         out DateTime result
                     ))
                 {
-                    _lastTimeBackup = result;
+                    LastTimeBackup = result;
                     break;
                 }
             }
@@ -67,7 +66,7 @@ namespace TqkLibrary.Data.Json
         private void SaveJsonDataAutoBackup_OnSaved(T obj)
         {
             DateTime current = DateTime.Now;
-            if (_lastTimeBackup.Add(BackupInterval) < current)
+            if (LastTimeBackup.Add(BackupInterval) < current)
             {
                 try
                 {
@@ -75,7 +74,7 @@ namespace TqkLibrary.Data.Json
                         Path.Combine(BackupDir, $"{current:yyyy-MM-dd HH-mm-ss.ffffff}.json"),
                         JsonConvert.SerializeObject(Data, Formatting.Indented, _jsonSerializerSettings)
                         );
-                    _lastTimeBackup = current;
+                    LastTimeBackup = current;
                 }
                 catch { }
             }
