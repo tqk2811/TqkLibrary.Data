@@ -82,7 +82,7 @@ namespace TqkLibrary.Data.Json
         /// </summary>
         ~SaveJsonData()
         {
-            _timer.Dispose();
+            Dispose(false);
         }
         /// <summary>
         /// 
@@ -90,6 +90,10 @@ namespace TqkLibrary.Data.Json
         public void Dispose()
         {
             GC.SuppressFinalize(this);
+            Dispose(true);
+        }
+        protected virtual void Dispose(bool disposing)
+        {
             _timer.Dispose();
         }
 
