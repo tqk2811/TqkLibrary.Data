@@ -15,12 +15,20 @@ namespace TqkLibrary.Data.Json
     public class SaveJsonData<T> : IDisposable, ISaveJsonDataControl
         where T : class
     {
+        const double _defaultDelaySaving = 500;
+
+
+
+        private readonly string _savePath;
+        private readonly System.Timers.Timer _timer;
+        private readonly JsonSerializerSettings? _jsonSerializerSettings;
+        private T? _data;
+
         public bool TrySaveOnError { get; set; } = true;
         /// <summary>
         /// 
         /// </summary>
-        public T Data { get; private set; }
-
+        public T Data { get { return _data ?? throw new InvalidOperationException("data was not load"); } }
         /// <summary>
         /// 
         /// </summary>
@@ -29,8 +37,6 @@ namespace TqkLibrary.Data.Json
             get { return _timer.Interval; }
             set { _timer.Interval = value; }
         }
-
-        const double _defaultDelaySaving = 500;
         /// <summary>
         /// 
         /// </summary>
@@ -41,9 +47,6 @@ namespace TqkLibrary.Data.Json
         public event Action<Exception>? OnSaveError;
 
 
-        private readonly string _savePath;
-        private readonly System.Timers.Timer _timer;
-        private readonly JsonSerializerSettings? _jsonSerializerSettings;
         /// <summary>
         /// 
         /// </summary>
@@ -161,8 +164,10 @@ namespace TqkLibrary.Data.Json
         /// </summary>
         public virtual void Load()
         {
-            if (File.Exists(_savePath)) Data = JsonConvert.DeserializeObject<T>(File.ReadAllText(_savePath), _jsonSerializerSettings);
-            else
+            if (File.Exists(_savePath)) 
+                _data = JsonConvert.DeserializeObject<T>(File.ReadAllText(_savePath), _jsonSerializerSettings);
+
+            if (_data is null)
             {
                 T defaultData = (T)Activator.CreateInstance(typeof(T));//throw if not have Parameterless
                 Load(defaultData);
@@ -175,11 +180,11 @@ namespace TqkLibrary.Data.Json
         /// <param name="defaultData">default Data if file not exist</param>
         public virtual void Load(T defaultData)
         {
-            if (File.Exists(_savePath)) Data = JsonConvert.DeserializeObject<T>(File.ReadAllText(_savePath), _jsonSerializerSettings);
-            else
-            {
-                Data = defaultData ?? throw new ArgumentNullException(nameof(defaultData));
-            }
+            if (File.Exists(_savePath)) 
+                _data = JsonConvert.DeserializeObject<T>(File.ReadAllText(_savePath), _jsonSerializerSettings);
+
+            if (_data is null)
+                _data = defaultData ?? throw new ArgumentNullException(nameof(defaultData));
         }
     }
 }
