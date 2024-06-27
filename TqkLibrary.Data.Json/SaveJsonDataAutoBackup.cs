@@ -42,7 +42,7 @@ namespace TqkLibrary.Data.Json
                 if (
                     fileInfo.Name.Length > _backup.Length + fileInfo.Extension.Length &&
                     DateTime.TryParseExact(
-                        fileInfo.Name.Substring(_backup.Length, fileInfo.Name.Length - fileInfo.Extension.Length),
+                        fileInfo.Name.Substring(_backup.Length, fileInfo.Name.Length - fileInfo.Extension.Length - _backup.Length),
                         "yyyy-MM-dd HH-mm-ss.ffffff",
                         CultureInfo.CurrentCulture,
                         DateTimeStyles.None,
