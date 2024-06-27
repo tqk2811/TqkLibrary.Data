@@ -21,7 +21,7 @@ namespace TqkLibrary.Data.Json
 
         private readonly string _savePath;
         private readonly System.Timers.Timer _timer;
-        private readonly JsonSerializerSettings? _jsonSerializerSettings;
+        protected readonly JsonSerializerSettings? _jsonSerializerSettings;
         private T? _data;
 
         public bool TrySaveOnError { get; set; } = true;
