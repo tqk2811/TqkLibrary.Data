@@ -16,22 +16,12 @@ namespace TqkLibrary.Data.Json
         public DateTime LastTimeBackup { get; private set; }
         public TimeSpan BackupInterval { get; set; } = TimeSpan.FromDays(1);//backup perday
 
+
+        const string _backup = "Backup ";
         public SaveJsonDataAutoBackup(string SavePath, string backupDir, JsonSerializerSettings? jsonSerializerSettings = null)
             : base(SavePath, jsonSerializerSettings)
         {
             BackupDir = backupDir;
-            Init();
-        }
-
-        public SaveJsonDataAutoBackup(string SavePath, string backupDir, T defaultData, JsonSerializerSettings? jsonSerializerSettings = null)
-            : base(SavePath, defaultData, jsonSerializerSettings)
-        {
-            BackupDir = backupDir;
-            Init();
-        }
-        const string _backup = "Backup ";
-        void Init()
-        {
             Directory.CreateDirectory(BackupDir);
             this.OnSaved += SaveJsonDataAutoBackup_OnSaved;
 
@@ -94,7 +84,7 @@ namespace TqkLibrary.Data.Json
                 {
                     try
                     {
-                        base.Load(filePath);
+                        base.Load(file);
                         isSuccess = true;
                         break;
                     }

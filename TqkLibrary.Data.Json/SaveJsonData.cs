@@ -46,36 +46,11 @@ namespace TqkLibrary.Data.Json
         /// </summary>
         public event Action<Exception>? OnSaveError;
 
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="SavePath"></param>
-        /// <param name="jsonSerializerSettings"></param>
-        /// <exception cref="ArgumentNullException"></exception>
         public SaveJsonData(string SavePath, JsonSerializerSettings? jsonSerializerSettings = null)
         {
             if (string.IsNullOrEmpty(SavePath)) throw new ArgumentNullException(nameof(SavePath));
             this._jsonSerializerSettings = jsonSerializerSettings;
             this._savePath = SavePath;
-            Load();
-            _timer = new System.Timers.Timer(_defaultDelaySaving);
-            _timer.Elapsed += Timer_Elapsed;
-            _timer.AutoReset = false;
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="SavePath"></param>
-        /// <param name="defaultData"></param>
-        /// <param name="jsonSerializerSettings"></param>
-        /// <exception cref="ArgumentNullException"></exception>
-        public SaveJsonData(string SavePath, T defaultData, JsonSerializerSettings? jsonSerializerSettings = null)
-        {
-            if (string.IsNullOrEmpty(SavePath)) throw new ArgumentNullException(nameof(SavePath));
-            this._jsonSerializerSettings = jsonSerializerSettings;
-            this._savePath = SavePath;
-            Load(defaultData);
             _timer = new System.Timers.Timer(_defaultDelaySaving);
             _timer.Elapsed += Timer_Elapsed;
             _timer.AutoReset = false;
@@ -187,8 +162,8 @@ namespace TqkLibrary.Data.Json
 
         protected virtual void Load(string filePath)
         {
-            if (File.Exists(_savePath))
-                _data = JsonConvert.DeserializeObject<T>(File.ReadAllText(_savePath), _jsonSerializerSettings);
+            if (File.Exists(filePath))
+                _data = JsonConvert.DeserializeObject<T>(File.ReadAllText(filePath), _jsonSerializerSettings);
         }
     }
 }

@@ -19,6 +19,7 @@ namespace TestProject
                Path.Combine(Directory.GetCurrentDirectory(), $"{nameof(TestSaveJsonDataAutoBackup)}Backup")
            );
             saveJsonDataAutoBackup.BackupInterval = TimeSpan.FromSeconds(0.5);
+            saveJsonDataAutoBackup.Load();
         }
 
         [Test]
