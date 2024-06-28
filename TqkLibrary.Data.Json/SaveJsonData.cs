@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
@@ -18,7 +19,7 @@ namespace TqkLibrary.Data.Json
         const double _defaultDelaySaving = 500;
 
 
-
+        private readonly object _lock = new object();
         private readonly string _savePath;
         private readonly System.Timers.Timer _timer;
         protected readonly JsonSerializerSettings? _jsonSerializerSettings;
@@ -170,8 +171,11 @@ namespace TqkLibrary.Data.Json
 
         protected virtual void Load(string filePath)
         {
-            if (File.Exists(filePath))
-                _data = JsonConvert.DeserializeObject<T>(File.ReadAllText(filePath), _jsonSerializerSettings);
+            lock (_lock)
+            {
+                if (File.Exists(filePath))
+                    _data = JsonConvert.DeserializeObject<T>(File.ReadAllText(filePath), _jsonSerializerSettings);
+            }
         }
     }
 }
