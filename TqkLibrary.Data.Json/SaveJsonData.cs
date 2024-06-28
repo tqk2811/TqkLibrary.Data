@@ -28,7 +28,15 @@ namespace TqkLibrary.Data.Json
         /// <summary>
         /// 
         /// </summary>
-        public T Data { get { return _data ?? throw new InvalidOperationException("data was not load"); } }
+        public T Data
+        {
+            get
+            {
+                if (_data is null)
+                    Load();
+                return _data ?? throw new InvalidOperationException("data was not load");
+            }
+        }
         /// <summary>
         /// 
         /// </summary>
