@@ -1,6 +1,7 @@
 ﻿using Nito.AsyncEx;
 using OfficeOpenXml;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -85,6 +86,7 @@ namespace TqkLibrary.Data.Excel
                 foreach (PropertyInfo propertyInfo in typeof(T).GetProperties())
                 {
                     cancellationToken.ThrowIfCancellationRequested();
+
                     ColAttribute? colAttribute = propertyInfo.GetCustomAttribute<ColAttribute>();
                     if (colAttribute is not null && colAttribute.Flag.HasFlag(ColFlag.IsUpdateBack))
                     {
@@ -93,6 +95,27 @@ namespace TqkLibrary.Data.Excel
                         {
                             excelWorksheet.Cells[$"{colAttribute.Col}{data.LineIndex}"].Value = pData;
                             isChanged = true;
+                        }
+                    }
+
+                    ColRangeAttribute? colRangeAttribute = propertyInfo.GetCustomAttribute<ColRangeAttribute>();
+                    if (colRangeAttribute is not null && colRangeAttribute.Flag.HasFlag(ColFlag.IsUpdateBack))
+                    {
+                        object? pData = propertyInfo.GetValue(data);
+                        if (pData is IEnumerable collection)
+                        {
+                            var cols = colRangeAttribute.Cols.ToList();
+                            int index = 0;
+                            foreach (object? item in collection)
+                            {
+                                if (index >= cols.Count) 
+                                    break;
+
+                                excelWorksheet.Cells[$"{cols[0]}{data.LineIndex}"].Value = item?.ToString();
+
+                                isChanged = true;
+                                index++;
+                            }
                         }
                     }
                 }
@@ -169,6 +192,33 @@ namespace TqkLibrary.Data.Excel
                         }
                         propertyInfo.SetValue(instance, data);
                         isEmptyLine = false;
+                    }
+                }
+
+                ColRangeAttribute? colRangeAttribute = propertyInfo.GetCustomAttribute<ColRangeAttribute>();
+                if (colRangeAttribute is not null)
+                {
+                    foreach (string col in colRangeAttribute.Cols)
+                    {
+                        string? data = excelWorksheet.Cells[$"{col}{lineIndex}"].Value?.ToString()?.Trim();
+                        if (string.IsNullOrWhiteSpace(data))
+                        {
+                            if (!isReadAll && colRangeAttribute.Flag.HasFlag(ColFlag.SkipReadLineIfCell_Empty))
+                            {
+                                isSkip = true;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            if (!isReadAll && colRangeAttribute.Flag.HasFlag(ColFlag.SkipReadLineIfCell_NotEmpty))
+                            {
+                                isSkip = true;
+                                break;
+                            }
+                            propertyInfo.SetValue(instance, data);
+                            isEmptyLine = false;
+                        }
                     }
                 }
             }
