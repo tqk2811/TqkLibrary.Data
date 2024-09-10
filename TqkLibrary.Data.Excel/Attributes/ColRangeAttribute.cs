@@ -18,6 +18,13 @@ namespace TqkLibrary.Data.Excel.Attributes
             this.Flag = colFlag;
         }
 
+        public ColRangeAttribute(char colFrom, char colTo, ColFlag colFlag = ColFlag.None)
+        {
+            if (colTo < colFrom) throw new ArgumentException($"{nameof(colFrom)} must be less than or equal to {nameof(colTo)}");
+            this.Cols = Enumerable.Range(colFrom, colTo - colFrom + 1).Select(x => ((char)x).ToString()).ToArray();
+            this.Flag = colFlag;
+        }
+
         public IEnumerable<string> Cols { get; }
         public ColFlag Flag { get; }
     }
