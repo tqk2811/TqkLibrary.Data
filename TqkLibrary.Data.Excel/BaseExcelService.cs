@@ -102,7 +102,18 @@ namespace TqkLibrary.Data.Excel
                     if (colRangeAttribute is not null && colRangeAttribute.Flag.HasFlag(ColFlag.IsUpdateBack))
                     {
                         object? pData = propertyInfo.GetValue(data);
-                        if (pData is IEnumerable collection)
+                        if (pData is IDictionary<string, string> dict)
+                        {
+                            foreach (var pair in dict)
+                            {
+                                if (colRangeAttribute.Cols.Contains(pair.Key))
+                                {
+                                    excelWorksheet.Cells[$"{pair.Key}{data.LineIndex}"].Value = pair.Value;
+                                    isChanged = true;
+                                }
+                            }
+                        }
+                        else if (pData is IEnumerable collection)
                         {
                             var cols = colRangeAttribute.Cols.ToList();
                             int index = 0;
@@ -111,12 +122,13 @@ namespace TqkLibrary.Data.Excel
                                 if (index >= cols.Count)
                                     break;
 
-                                excelWorksheet.Cells[$"{cols[0]}{data.LineIndex}"].Value = item?.ToString();
+                                excelWorksheet.Cells[$"{cols[index]}{data.LineIndex}"].Value = item?.ToString();
 
                                 isChanged = true;
                                 index++;
                             }
                         }
+
                     }
                 }
             }
@@ -266,7 +278,7 @@ namespace TqkLibrary.Data.Excel
                                 isEmptyLine = false;
                             }
                         }
-                        if(collection is not null)
+                        if (collection is not null)
                         {
                             foreach (string val in dictionary.Values)
                                 collection.Add(val);
