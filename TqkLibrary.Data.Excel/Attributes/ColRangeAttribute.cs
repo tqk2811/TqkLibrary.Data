@@ -5,6 +5,9 @@ using TqkLibrary.Data.Excel.Enums;
 
 namespace TqkLibrary.Data.Excel.Attributes
 {
+    /// <summary>
+    /// for IDictionary&lt;string, string&gt; or ICollection&lt;string&gt; only 
+    /// </summary>
     public class ColRangeAttribute : Attribute
     {
         public ColRangeAttribute(ColFlag colFlag = ColFlag.None, params string[] cols)

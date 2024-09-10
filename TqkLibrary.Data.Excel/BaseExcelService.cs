@@ -108,7 +108,7 @@ namespace TqkLibrary.Data.Excel
                             int index = 0;
                             foreach (object? item in collection)
                             {
-                                if (index >= cols.Count) 
+                                if (index >= cols.Count)
                                     break;
 
                                 excelWorksheet.Cells[$"{cols[0]}{data.LineIndex}"].Value = item?.ToString();
@@ -172,7 +172,10 @@ namespace TqkLibrary.Data.Excel
             foreach (PropertyInfo propertyInfo in typeof(T).GetProperties())
             {
                 ColAttribute? colAttribute = propertyInfo.GetCustomAttribute<ColAttribute>();
-                if (colAttribute is not null)
+                if (colAttribute is not null &&
+                    propertyInfo.CanWrite &&
+                    propertyInfo.PropertyType.Equals(typeof(string))
+                    )
                 {
                     string? data = excelWorksheet.Cells[$"{colAttribute.Col}{lineIndex}"].Value?.ToString()?.Trim();
                     if (string.IsNullOrWhiteSpace(data))
@@ -196,29 +199,79 @@ namespace TqkLibrary.Data.Excel
                 }
 
                 ColRangeAttribute? colRangeAttribute = propertyInfo.GetCustomAttribute<ColRangeAttribute>();
-                if (colRangeAttribute is not null)
+                if (colRangeAttribute is not null && propertyInfo.CanRead)
                 {
-                    foreach (string col in colRangeAttribute.Cols)
+                    bool isCollection = typeof(ICollection<string>).IsAssignableFrom(propertyInfo.PropertyType);
+                    bool isDictionary = typeof(IDictionary<string, string>).IsAssignableFrom(propertyInfo.PropertyType);
+                    if (isCollection || isDictionary)
                     {
-                        string? data = excelWorksheet.Cells[$"{col}{lineIndex}"].Value?.ToString()?.Trim();
-                        if (string.IsNullOrWhiteSpace(data))
+                        object? pInstance = propertyInfo.GetValue(instance);
+                        ICollection<string>? collection = null;
+                        IDictionary<string, string>? dictionary = null;
+                        if (pInstance is null)
                         {
-                            if (!isReadAll && colRangeAttribute.Flag.HasFlag(ColFlag.SkipReadLineIfCell_Empty))
+                            if (!propertyInfo.CanWrite)
+                                throw new InvalidOperationException($"Can't write to property '{propertyInfo.Name}'");
+
+                            if (propertyInfo.PropertyType.IsInterface)
                             {
-                                isSkip = true;
-                                break;
+                                //create
+                                if (isCollection)
+                                {
+                                    collection = new List<string>();
+                                    pInstance = collection;
+                                }
+                                else
+                                {
+                                    dictionary = new Dictionary<string, string>();
+                                    pInstance = dictionary;
+                                }
+                            }
+                            else
+                            {
+                                //create with default ctor
+                                pInstance = Activator.CreateInstance(propertyInfo.PropertyType);
+                                if (isCollection)
+                                {
+                                    collection = (ICollection<string>)pInstance;
+                                }
+                                else
+                                {
+                                    dictionary = (IDictionary<string, string>)pInstance;
+                                }
+                            }
+                            propertyInfo.SetValue(instance, pInstance);
+                        }
+                        if (dictionary is null)
+                            dictionary = new Dictionary<string, string>();
+                        foreach (string col in colRangeAttribute.Cols)
+                        {
+                            string? data = excelWorksheet.Cells[$"{col}{lineIndex}"].Value?.ToString()?.Trim();
+                            if (string.IsNullOrWhiteSpace(data))
+                            {
+                                if (!isReadAll && colRangeAttribute.Flag.HasFlag(ColFlag.SkipReadLineIfCell_Empty))
+                                {
+                                    isSkip = true;
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                if (!isReadAll && colRangeAttribute.Flag.HasFlag(ColFlag.SkipReadLineIfCell_NotEmpty))
+                                {
+                                    isSkip = true;
+                                    break;
+                                }
+                                dictionary.Add(col, data!);
+                                isEmptyLine = false;
                             }
                         }
-                        else
+                        if(collection is not null)
                         {
-                            if (!isReadAll && colRangeAttribute.Flag.HasFlag(ColFlag.SkipReadLineIfCell_NotEmpty))
-                            {
-                                isSkip = true;
-                                break;
-                            }
-                            propertyInfo.SetValue(instance, data);
-                            isEmptyLine = false;
+                            foreach (string val in dictionary.Values)
+                                collection.Add(val);
                         }
+
                     }
                 }
             }
