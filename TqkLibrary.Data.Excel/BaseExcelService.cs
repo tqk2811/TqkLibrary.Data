@@ -254,6 +254,17 @@ namespace TqkLibrary.Data.Excel
                             }
                             propertyInfo.SetValue(instance, pInstance);
                         }
+                        else
+                        {
+                            if (isCollection)
+                            {
+                                collection = (ICollection<string>)pInstance;
+                            }
+                            else
+                            {
+                                pInstance = (IDictionary<string, string>)pInstance;
+                            }
+                        }
                         if (dictionary is null)
                             dictionary = new Dictionary<string, string>();
                         foreach (string col in colRangeAttribute.Cols)
