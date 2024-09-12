@@ -219,8 +219,13 @@ namespace TqkLibrary.Data.Excel
                 if (colRangeAttribute is not null && propertyInfo.CanRead)
                 {
                     bool isCollection = typeof(ICollection<string>).IsAssignableFrom(propertyInfo.PropertyType);
+                    bool isIEnumerable = typeof(IEnumerable<string>).IsAssignableFrom(propertyInfo.PropertyType);
                     bool isDictionary = typeof(IDictionary<string, string>).IsAssignableFrom(propertyInfo.PropertyType);
-                    if (isCollection || isDictionary)
+                    bool isIReadOnlyDictionary = typeof(IReadOnlyDictionary<string, string>).IsAssignableFrom(propertyInfo.PropertyType);
+                    if (isCollection ||
+                        isDictionary ||
+                        (propertyInfo.PropertyType.IsInterface && (isIEnumerable || isIReadOnlyDictionary))
+                        )
                     {
                         object? pInstance = propertyInfo.GetValue(instance);
                         ICollection<string>? collection = null;
@@ -233,7 +238,7 @@ namespace TqkLibrary.Data.Excel
                             if (propertyInfo.PropertyType.IsInterface)
                             {
                                 //create
-                                if (isCollection)
+                                if (isCollection || isIEnumerable)
                                 {
                                     collection = new List<string>();
                                     pInstance = collection;
@@ -299,7 +304,6 @@ namespace TqkLibrary.Data.Excel
                             foreach (string val in dictionary.Values)
                                 collection.Add(val);
                         }
-
                     }
                 }
             }
