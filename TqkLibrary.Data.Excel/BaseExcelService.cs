@@ -183,6 +183,9 @@ namespace TqkLibrary.Data.Excel
             instance.ExcelFilePath = _filePath;
             foreach (PropertyInfo propertyInfo in typeof(T).GetProperties())
             {
+                if (isSkip)
+                    break;
+
                 ColAttribute? colAttribute = propertyInfo.GetCustomAttribute<ColAttribute>();
                 if (colAttribute is not null &&
                     propertyInfo.CanWrite &&
@@ -209,6 +212,8 @@ namespace TqkLibrary.Data.Excel
                         isEmptyLine = false;
                     }
                 }
+                if (isSkip)
+                    break;
 
                 ColRangeAttribute? colRangeAttribute = propertyInfo.GetCustomAttribute<ColRangeAttribute>();
                 if (colRangeAttribute is not null && propertyInfo.CanRead)
