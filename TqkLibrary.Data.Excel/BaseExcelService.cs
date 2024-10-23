@@ -15,7 +15,7 @@ using TqkLibrary.Data.Excel.Enums;
 
 namespace TqkLibrary.Data.Excel
 {
-    public abstract partial class BaseExcelService
+    public partial class BaseExcelService
     {
         static BaseExcelService()
         {
@@ -31,7 +31,7 @@ namespace TqkLibrary.Data.Excel
             this._filePath = filePath;
         }
 
-        public virtual Task ResetAsync(CancellationToken cancellationToken = default)
+        public virtual Task ResetLineIndexAsync(CancellationToken cancellationToken = default)
         {
             return Task.CompletedTask;
         }

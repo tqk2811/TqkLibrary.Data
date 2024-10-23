@@ -17,20 +17,20 @@ namespace TqkLibrary.Data.Excel
         }
 
 
-        public override async Task ResetAsync(CancellationToken cancellationToken = default)
+        public override async Task ResetLineIndexAsync(CancellationToken cancellationToken = default)
         {
             using var l = await _asyncLock.LockAsync(cancellationToken);
             _dict_startLineIndex.Clear();
         }
 
-        public virtual async Task<T?> GetDataAsync<T>(CancellationToken cancellationToken = default) where T : BaseData, new()
+        public virtual async Task<T?> GetNextDataAsync<T>(CancellationToken cancellationToken = default) where T : BaseData, new()
         {
             using var l = await _asyncLock.LockAsync(cancellationToken);
-            return await _RunInTask(() => _GetDataAsync<T>(cancellationToken));
+            return await _RunInTask(() => _GetNextDataAsync<T>(cancellationToken));
         }
 
 
-        protected virtual T? _GetDataAsync<T>(CancellationToken cancellationToken = default) where T : BaseData, new()
+        protected virtual T? _GetNextDataAsync<T>(CancellationToken cancellationToken = default) where T : BaseData, new()
         {
             SheetIndexAttribute? sheetIndexAttribute = typeof(T).GetCustomAttribute<SheetIndexAttribute>();
             if (sheetIndexAttribute is null)
