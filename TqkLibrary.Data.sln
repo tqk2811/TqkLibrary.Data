@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TqkLibrary.Data.Excel", "Tq
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProject", "TestProject\TestProject.csproj", "{6BDD31D6-5250-420D-82B7-F74F7C5F56B3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TqkLibrary.Data.Cache", "TqkLibrary.Data.Cache\TqkLibrary.Data.Cache.csproj", "{7CBD85BC-09F3-4429-864E-6968267E70FF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{6BDD31D6-5250-420D-82B7-F74F7C5F56B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6BDD31D6-5250-420D-82B7-F74F7C5F56B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6BDD31D6-5250-420D-82B7-F74F7C5F56B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7CBD85BC-09F3-4429-864E-6968267E70FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7CBD85BC-09F3-4429-864E-6968267E70FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7CBD85BC-09F3-4429-864E-6968267E70FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7CBD85BC-09F3-4429-864E-6968267E70FF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
