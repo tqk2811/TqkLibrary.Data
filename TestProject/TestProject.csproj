@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TqkLibrary.Data.Cache\TqkLibrary.Data.Cache.csproj" />
     <ProjectReference Include="..\TqkLibrary.Data.Excel\TqkLibrary.Data.Excel.csproj" />
     <ProjectReference Include="..\TqkLibrary.Data.Json\TqkLibrary.Data.Json.csproj" />
   </ItemGroup>

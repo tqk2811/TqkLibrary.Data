@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace TqkLibrary.Data.Cache
 {
     public class RamCache<TKey, TValue>
     {
+
         class StoreData
         {
             public DateTime StoreTime { get; set; }
@@ -17,6 +19,22 @@ namespace TqkLibrary.Data.Cache
 
         readonly Dictionary<TKey, StoreData> _dict = new();
         public TimeSpan StoreTimeout { get; set; }
+        public IReadOnlyList<TKey> Keys
+        {
+            get
+            {
+                ClearTimeout();
+                return _dict.Keys.ToArray();
+            }
+        }
+        public IReadOnlyList<TValue> Values
+        {
+            get
+            {
+                ClearTimeout();
+                return _dict.Values.Select(x => x.Value).ToArray();
+            }
+        }
 
         public RamCache() : this(TimeSpan.Zero)
         {
@@ -29,7 +47,7 @@ namespace TqkLibrary.Data.Cache
 
         void ClearTimeout()
         {
-            if (StoreTimeout <= TimeSpan.Zero) 
+            if (StoreTimeout <= TimeSpan.Zero)
                 return;
             lock (_dict)
             {
@@ -51,6 +69,8 @@ namespace TqkLibrary.Data.Cache
         /// <param name="value"></param>
         public void Add(TKey key, TValue value)
         {
+            if (key is null) throw new ArgumentNullException(nameof(key));
+            if (value is null) throw new ArgumentNullException(nameof(value));
             lock (_dict)
             {
                 if (_dict.TryGetValue(key, out StoreData? storeData))
@@ -60,7 +80,7 @@ namespace TqkLibrary.Data.Cache
                 }
                 else
                 {
-                    storeData = new StoreData
+                    _dict[key] = new StoreData
                     {
                         Value = value,
                         StoreTime = DateTime.UtcNow
