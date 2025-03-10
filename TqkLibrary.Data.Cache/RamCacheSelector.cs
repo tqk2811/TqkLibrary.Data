@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace TqkLibrary.Data.Cache
 {
@@ -19,5 +20,14 @@ namespace TqkLibrary.Data.Cache
         /// </summary>
         /// <param name="value"></param>
         public void Add(TValue value) => base.Add(_func_selector.Invoke(value), value);
+
+        /// <summary>
+        /// Add or update
+        /// </summary>
+        /// <param name="value"></param>
+        public void AddRange(IEnumerable<TValue> value)
+        {
+            foreach (var item in value) Add(item);
+        }
     }
 }
