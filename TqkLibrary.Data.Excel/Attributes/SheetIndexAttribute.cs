@@ -5,12 +5,23 @@ namespace TqkLibrary.Data.Excel.Attributes
 {
     public class SheetIndexAttribute : Attribute
     {
-        public SheetIndexAttribute(int index, int startRow = 1)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="startRow">Note: startRow + <see cref="ExcelWorksheets.Rows.StartRow"/></param>
+        public SheetIndexAttribute(int index, int startRow = 0)
         {
             this.Index = index;
             this.StartRow = startRow;
         }
-        public SheetIndexAttribute(string name, int startRow = 1)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="startRow">Note: startRow + <see cref="ExcelWorksheets.Rows.StartRow"/></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public SheetIndexAttribute(string name, int startRow = 0)
         {
             if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
             this.Name = name;

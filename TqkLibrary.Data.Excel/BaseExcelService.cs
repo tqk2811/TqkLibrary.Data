@@ -162,7 +162,7 @@ namespace TqkLibrary.Data.Excel
             List<T> values = new List<T>();
             if (excelWorksheet is not null)
             {
-                for (int i = Math.Max(excelWorksheet.Rows.StartRow, sheetIndexAttribute.StartRow); i < excelWorksheet.Rows.EndRow; i++)
+                for (int i = excelWorksheet.Rows.StartRow + Math.Max(0, sheetIndexAttribute.StartRow); i < excelWorksheet.Rows.EndRow; i++)
                 {
                     T? instance = _ReadRow<T>(excelWorksheet, i, isReadAll, out bool isEmptyLine);
                     if (instance is not null)
