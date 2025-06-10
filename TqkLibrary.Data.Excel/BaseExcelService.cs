@@ -140,19 +140,18 @@ namespace TqkLibrary.Data.Excel
 
 
         public virtual async Task<IReadOnlyList<T>> GetDatasAsync<T>(
-            bool isReadAll = false,
-            bool stopAtEmptyLine = false,
-            CancellationToken cancellationToken = default) where T : BaseData, new()
-        {
-            using var l = await _asyncLock.LockAsync(cancellationToken);
-            return await _RunInTask(() => _GetDatas<T>(isReadAll, stopAtEmptyLine));
-        }
-        protected virtual IReadOnlyList<T> _GetDatas<T>(
-            bool isReadAll = false,
-            bool stopAtEmptyLine = false
+            ExcelReadOption? excelReadOption = null,
+            CancellationToken cancellationToken = default
             ) where T : BaseData, new()
         {
+            using var l = await _asyncLock.LockAsync(cancellationToken);
+            return await _RunInTask(() => _GetDatas<T>(excelReadOption));
+        }
+        protected virtual IReadOnlyList<T> _GetDatas<T>(ExcelReadOption? excelReadOption = null) where T : BaseData, new()
+        {
             SheetIndexAttribute? sheetIndexAttribute = typeof(T).GetCustomAttribute<SheetIndexAttribute>();
+            if (excelReadOption?.ForceSheetIndex is not null)
+                sheetIndexAttribute = excelReadOption.ForceSheetIndex;
             if (sheetIndexAttribute is null)
                 throw new InvalidOperationException($"'{typeof(T).FullName}' must contain attribute {nameof(SheetIndexAttribute)}");
 
@@ -164,10 +163,10 @@ namespace TqkLibrary.Data.Excel
             {
                 for (int i = excelWorksheet.Rows.StartRow + Math.Max(0, sheetIndexAttribute.StartRow); i < excelWorksheet.Rows.EndRow; i++)
                 {
-                    T? instance = _ReadRow<T>(excelWorksheet, i, isReadAll, out bool isEmptyLine);
+                    T? instance = _ReadRow<T>(excelWorksheet, i, excelReadOption?.IsReadAll == true, out bool isEmptyLine);
                     if (instance is not null)
                         values.Add(instance);
-                    else if (stopAtEmptyLine && isEmptyLine)
+                    else if (excelReadOption?.StopAtEmptyLine == true && isEmptyLine)
                         break;
                 }
             }
