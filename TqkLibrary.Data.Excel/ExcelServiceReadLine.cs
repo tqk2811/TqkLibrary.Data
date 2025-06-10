@@ -23,16 +23,18 @@ namespace TqkLibrary.Data.Excel
             _dict_startLineIndex.Clear();
         }
 
-        public virtual async Task<T?> GetNextDataAsync<T>(CancellationToken cancellationToken = default) where T : BaseData, new()
+        public virtual async Task<T?> GetNextDataAsync<T>(ExcelReadOption? excelReadOption = null, CancellationToken cancellationToken = default) where T : BaseData, new()
         {
             using var l = await _asyncLock.LockAsync(cancellationToken);
-            return await _RunInTask(() => _GetNextDataAsync<T>(cancellationToken));
+            return await _RunInTask(() => _GetNextDataAsync<T>(excelReadOption, cancellationToken));
         }
 
 
-        protected virtual T? _GetNextDataAsync<T>(CancellationToken cancellationToken = default) where T : BaseData, new()
+        protected virtual T? _GetNextDataAsync<T>(ExcelReadOption? excelReadOption = null, CancellationToken cancellationToken = default) where T : BaseData, new()
         {
             SheetIndexAttribute? sheetIndexAttribute = typeof(T).GetCustomAttribute<SheetIndexAttribute>();
+            if (excelReadOption?.ForceSheetIndex is not null)
+                sheetIndexAttribute = excelReadOption.ForceSheetIndex;
             if (sheetIndexAttribute is null)
                 throw new InvalidOperationException($"'{typeof(T).FullName}' must contain attribute {nameof(SheetIndexAttribute)}");
 
