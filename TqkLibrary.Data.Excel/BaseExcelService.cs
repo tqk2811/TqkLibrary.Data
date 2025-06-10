@@ -184,6 +184,30 @@ namespace TqkLibrary.Data.Excel
             {
                 if (isSkip)
                     break;
+                CellAttribute? cellAttribute = propertyInfo.GetCustomAttribute<CellAttribute>();
+                if (cellAttribute is not null && propertyInfo.CanWrite)
+                {
+                    string? data = excelWorksheet.Cells[cellAttribute.Cell].Value?.ToString()?.Trim();
+                    if (string.IsNullOrWhiteSpace(data))
+                    {
+                        if (!isReadAll && cellAttribute.Flag.HasFlag(ColFlag.SkipReadLineIfCell_Empty))
+                        {
+                            isSkip = true;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        if (!isReadAll && cellAttribute.Flag.HasFlag(ColFlag.SkipReadLineIfCell_NotEmpty))
+                        {
+                            isSkip = true;
+                            break;
+                        }
+                        propertyInfo.SetValue(instance, data);
+                    }
+                }
+                if (isSkip)
+                    break;
 
                 ColAttribute? colAttribute = propertyInfo.GetCustomAttribute<ColAttribute>();
                 if (colAttribute is not null &&
