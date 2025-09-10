@@ -154,7 +154,7 @@ namespace TqkLibrary.Data.Excel
         {
             FileInfo fileInfo = new FileInfo(_filePath);
             using ExcelPackage package = fileInfo.Exists ? new ExcelPackage(_filePath) : new ExcelPackage();
-            ExcelWorksheet excelWorksheet = sheetIndexAttribute.GetSheet(package.Workbook.Worksheets);
+            ExcelWorksheet excelWorksheet = fileInfo.Exists ? sheetIndexAttribute.GetSheet(package.Workbook.Worksheets) : package.Workbook.Worksheets.Add(typeof(T).Name);
             PropertyInfo[] propertyInfos = typeof(T).GetProperties();
             ColAttribute[] colAttributes = propertyInfos
                 .Select(x => x.GetCustomAttribute<ColAttribute>())
