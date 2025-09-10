@@ -152,8 +152,7 @@ namespace TqkLibrary.Data.Excel
         int? lastEmptyRow = null;
         protected virtual async Task _AppendNewDatasAsync<T>(SheetIndexAttribute sheetIndexAttribute, IEnumerable<T> datas, CancellationToken cancellationToken = default) where T : BaseData
         {
-            FileInfo fileInfo = new FileInfo(_filePath);
-            using ExcelPackage package = fileInfo.Exists ? new ExcelPackage(_filePath) : new ExcelPackage();
+            using ExcelPackage package = new ExcelPackage(_filePath);
             ExcelWorksheet excelWorksheet = sheetIndexAttribute.GetSheet(package.Workbook.Worksheets);
             PropertyInfo[] propertyInfos = typeof(T).GetProperties();
             ColAttribute[] colAttributes = propertyInfos
@@ -266,16 +265,7 @@ namespace TqkLibrary.Data.Excel
                 }
             }
             if (isNeedSaved)
-            {
-                if (fileInfo.Exists)
-                {
-                    await package.SaveAsync();
-                }
-                else
-                {
-                    await package.SaveAsAsync(fileInfo);
-                }
-            }
+                await package.SaveAsync();
         }
 
 
