@@ -27,7 +27,7 @@ namespace TqkLibrary.Data.Excel
         public bool RunInLongRunningTask { get; set; } = true;
         public BaseExcelService(string filePath)
         {
-            if (!File.Exists(filePath)) throw new FileNotFoundException(filePath);
+            if (string.IsNullOrWhiteSpace(filePath)) throw new ArgumentNullException(nameof(filePath));
             this._filePath = filePath;
         }
 
