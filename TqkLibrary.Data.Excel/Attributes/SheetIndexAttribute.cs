@@ -9,28 +9,28 @@ namespace TqkLibrary.Data.Excel.Attributes
         /// 
         /// </summary>
         /// <param name="index"></param>
-        /// <param name="startRow">Note: startRow + <see cref="ExcelWorksheets.Rows.StartRow"/></param>
-        public SheetIndexAttribute(int index, int startRow = 0)
+        /// <param name="startRowOffset">Note: startRowOffset + <see cref="ExcelWorksheets.Rows.StartRow"/></param>
+        public SheetIndexAttribute(int index, int startRowOffset = 0)
         {
             this.Index = index;
-            this.StartRow = startRow;
+            this.StartRowOffset = startRowOffset;
         }
         /// <summary>
         /// 
         /// </summary>
         /// <param name="name"></param>
-        /// <param name="startRow">Note: startRow + <see cref="ExcelWorksheets.Rows.StartRow"/></param>
+        /// <param name="startRowOffset">Note: startRowOffset + <see cref="ExcelWorksheets.Rows.StartRow"/></param>
         /// <exception cref="ArgumentNullException"></exception>
-        public SheetIndexAttribute(string name, int startRow = 0)
+        public SheetIndexAttribute(string name, int startRowOffset = 0)
         {
             if (string.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
             this.Name = name;
-            this.StartRow = startRow;
+            this.StartRowOffset = startRowOffset;
         }
 
         public int? Index { get; }
         public string? Name { get; }
-        public int StartRow { get; }
+        public int StartRowOffset { get; }
 
         public override string ToString()
         {

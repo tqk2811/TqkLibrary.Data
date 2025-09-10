@@ -44,7 +44,7 @@ namespace TqkLibrary.Data.Excel
             if (!_dict_startLineIndex.ContainsKey(typeof(T)))
                 _dict_startLineIndex[typeof(T)] = -1;
 
-            int i = Math.Max(_dict_startLineIndex[typeof(T)], excelWorksheet.Rows.StartRow + Math.Max(0, sheetIndexAttribute.StartRow));
+            int i = Math.Max(_dict_startLineIndex[typeof(T)], excelWorksheet.Rows.StartRow + Math.Max(0, sheetIndexAttribute.StartRowOffset));
             for (; i < excelWorksheet.Rows.EndRow; i++)
             {
                 _dict_startLineIndex[typeof(T)] = i + 1;
