@@ -150,7 +150,7 @@ namespace TqkLibrary.Data.Excel
             await _RunInTask(() => _AppendNewDatasAsync(sheetIndexAttribute, datas, cancellationToken));
         }
         int? lastEmptyRow = null;
-        protected virtual void _AppendNewDatasAsync<T>(SheetIndexAttribute sheetIndexAttribute, IEnumerable<T> datas, CancellationToken cancellationToken = default) where T : BaseData
+        protected virtual async Task _AppendNewDatasAsync<T>(SheetIndexAttribute sheetIndexAttribute, IEnumerable<T> datas, CancellationToken cancellationToken = default) where T : BaseData
         {
             using ExcelPackage package = new ExcelPackage(_filePath);
             ExcelWorksheet excelWorksheet = sheetIndexAttribute.GetSheet(package.Workbook.Worksheets);
@@ -185,18 +185,20 @@ namespace TqkLibrary.Data.Excel
                 lastEmptyRow = excelWorksheet.Rows.StartRow + sheetIndexAttribute.StartRowOffset;
             }
 
-            //find empty row
-            for (int row = lastEmptyRow.Value; row <= excelWorksheet.Rows.EndRow; row++)
-            {
-                if (CheckIsRowEmpty(row))
-                {
-                    lastEmptyRow = row;
-                    break;
-                }
-            }
 
+            bool isNeedSaved = false;
             foreach (var data in datas)
             {
+                //find empty row
+                for (int row = lastEmptyRow.Value; row <= excelWorksheet.Rows.EndRow; row++)
+                {
+                    if (CheckIsRowEmpty(row))
+                    {
+                        lastEmptyRow = row;
+                        break;
+                    }
+                }
+
                 bool isDataInserted = false;
                 foreach (PropertyInfo propertyInfo in propertyInfos.Where(x => x.CanRead))
                 {
@@ -257,8 +259,13 @@ namespace TqkLibrary.Data.Excel
                     }
                 }
                 if (isDataInserted)
+                {
                     lastEmptyRow++;
+                    isNeedSaved = true;
+                }
             }
+            if (isNeedSaved)
+                await package.SaveAsync();
         }
 
 
