@@ -137,6 +137,129 @@ namespace TqkLibrary.Data.Excel
                 package.Save();
         }
 
+        public void ResetLastInsertEmptyRow() => lastEmptyRow = null;
+        public virtual Task AppendNewDataAsync<T>(T data, CancellationToken cancellationToken = default) where T : BaseData
+            => AppendNewDatasAsync<T>(Enumerable.Repeat(data, 1), cancellationToken);
+        public virtual async Task AppendNewDatasAsync<T>(IEnumerable<T> datas, CancellationToken cancellationToken = default) where T : BaseData
+        {
+            using var l = await _asyncLock.LockAsync(cancellationToken);
+            SheetIndexAttribute? sheetIndexAttribute = typeof(T).GetCustomAttribute<SheetIndexAttribute>();
+            if (sheetIndexAttribute is null)
+                throw new InvalidOperationException($"'{typeof(T).FullName}' must contain attribute {nameof(SheetIndexAttribute)}");
+
+            await _RunInTask(() => _AppendNewDatasAsync(sheetIndexAttribute, datas, cancellationToken));
+        }
+        int? lastEmptyRow = null;
+        protected virtual void _AppendNewDatasAsync<T>(SheetIndexAttribute sheetIndexAttribute, IEnumerable<T> datas, CancellationToken cancellationToken = default) where T : BaseData
+        {
+            using ExcelPackage package = new ExcelPackage(_filePath);
+            ExcelWorksheet excelWorksheet = sheetIndexAttribute.GetSheet(package.Workbook.Worksheets);
+            PropertyInfo[] propertyInfos = typeof(T).GetProperties();
+            ColAttribute[] colAttributes = propertyInfos
+                .Select(x => x.GetCustomAttribute<ColAttribute>())
+                .Where(x => x is not null)
+                .ToArray();
+            ColRangeAttribute[] colRangeAttributes = propertyInfos
+                .Select(x => x.GetCustomAttribute<ColRangeAttribute>())
+                .Where(x => x is not null)
+                .ToArray();
+            string[] cols = colAttributes.Select(x => x.Col).Append(colRangeAttributes.SelectMany(x => x.Cols)).Distinct().ToArray();
+            bool CheckIsRowEmpty(int row)
+            {
+                bool isEmptyRow = true;
+                foreach (string col in cols)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    string? val = excelWorksheet.Cells[$"{col}{row}"].Value?.ToString();
+                    if (!string.IsNullOrWhiteSpace(val))
+                    {
+                        isEmptyRow = false;
+                        break;
+                    }
+                }
+                return isEmptyRow;
+            }
+
+            if (!lastEmptyRow.HasValue)
+            {
+                lastEmptyRow = excelWorksheet.Rows.StartRow + sheetIndexAttribute.StartRowOffset;
+            }
+
+            //find empty row
+            for (int row = lastEmptyRow.Value; row <= excelWorksheet.Rows.EndRow; row++)
+            {
+                if (CheckIsRowEmpty(row))
+                {
+                    lastEmptyRow = row;
+                    break;
+                }
+            }
+
+            foreach (var data in datas)
+            {
+                bool isDataInserted = false;
+                foreach (PropertyInfo propertyInfo in propertyInfos.Where(x => x.CanRead))
+                {
+                    object? value = propertyInfo.GetValue(data);
+                    if (value is null)
+                        continue;
+
+                    ColAttribute? colAttribute = propertyInfo.GetCustomAttribute<ColAttribute>();
+                    if (colAttribute is not null)
+                    {
+                        string? valueStr = value?.ToString();
+                        if (string.IsNullOrWhiteSpace(valueStr))
+                            continue;
+
+                        excelWorksheet.Cells[$"{colAttribute.Col}{lastEmptyRow.Value}"].Value = valueStr;
+                        isDataInserted = true;
+                    }
+                    ColRangeAttribute? colRangeAttribute = propertyInfo.GetCustomAttribute<ColRangeAttribute>();
+                    if (colRangeAttribute is not null &&
+                        typeof(IEnumerable).IsAssignableFrom(propertyInfo.PropertyType)
+                        )
+                    {
+                        bool isIEnumerable = typeof(IEnumerable<string>).IsAssignableFrom(propertyInfo.PropertyType);
+                        bool isDictionary = typeof(IDictionary<string, string>).IsAssignableFrom(propertyInfo.PropertyType);
+                        bool isIReadOnlyDictionary = typeof(IReadOnlyDictionary<string, string>).IsAssignableFrom(propertyInfo.PropertyType);
+
+                        IEnumerable<string> strings;
+                        if (isDictionary)
+                        {
+                            strings = ((IDictionary<string, string>)value!).Values;
+                        }
+                        else if (isIReadOnlyDictionary)
+                        {
+                            strings = ((IReadOnlyDictionary<string, string>)value!).Values;
+                        }
+                        else if (isIEnumerable)
+                        {
+                            strings = (IEnumerable<string>)value!;
+                        }
+                        else
+                        {
+                            IEnumerable<string> _convert()
+                            {
+                                foreach (var item in (IEnumerable)value!)
+                                {
+                                    yield return item?.ToString()!;
+                                }
+                            }
+                            strings = _convert();
+                        }
+
+                        var Liststrings = strings.Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
+                        for (int i = 0; i < Liststrings.Count && i < colRangeAttribute.Cols.Count(); i++)
+                        {
+                            excelWorksheet.Cells[$"{colRangeAttribute.Cols.Skip(i).First()}{lastEmptyRow.Value}"].Value = Liststrings[i];
+                            isDataInserted = true;
+                        }
+                    }
+                }
+                if (isDataInserted)
+                    lastEmptyRow++;
+            }
+        }
 
 
         public virtual async Task<IReadOnlyList<T>> GetDatasAsync<T>(
